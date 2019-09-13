@@ -204,7 +204,7 @@ external to_channel: out_channel -> 'a -> extern_flags list -> unit
 let clambda i typed =
   Clflags.use_inlining_arguments_set Clflags.classic_arguments;
   let read = read_structure i.module_name (fst typed) in
-  let outchan = open_out_bin ("/tmp/asak/" ^ i.module_name) in
+  let (_,outchan) = Filename.open_temp_file ~temp_dir:"/tmp/asak/" (i.module_name^".") "" in
   to_channel outchan read [];
   close_out outchan;
   typed
