@@ -1,7 +1,8 @@
 let read threshold x =
+  let open Asak.Lambda_utils in
   let chan = open_in x in
   let res =
-    Asak.Lambda_utils.hash_all threshold @@
+    hash_all {should_sort=false} threshold @@
       Marshal.from_channel chan in
   close_in chan;
   res
