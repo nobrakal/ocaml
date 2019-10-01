@@ -201,10 +201,19 @@ type extern_flags = unit
 external to_channel: out_channel -> 'a -> extern_flags list -> unit
   = "caml_output_value"
 
+let rec get_after_build = function
+  | [] | [_] -> "ANON"
+  | x::(y::_ as lst) ->
+     if x = "build"
+     then y
+     else get_after_build lst
+
+let get_pkg_name pwd =
+  let xs = String.split_on_char '/' pwd in
+  get_after_build xs
+
 let export_lambda pwd module_name ftyped =
-  let pkg_name =
-    let bkindex = String.rindex pwd '/' + 1 in
-    String.(sub pwd bkindex (length pwd - bkindex)) in
+  let pkg_name = get_pkg_name pwd in
   let read = read_structure module_name ftyped in
   let outchan = open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ module_name) in
   to_channel outchan read [];
