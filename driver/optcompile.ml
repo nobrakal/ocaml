@@ -201,19 +201,18 @@ type extern_flags = unit
 external to_channel: out_channel -> 'a -> extern_flags list -> unit
   = "caml_output_value"
 
-let export_lambda module_name ftyped =
-  try
-    let pkg_name = Sys.getenv("PKG_NAME") in
-    let read = read_structure module_name ftyped in
-    let outchan = open_out_bin ("/tmp/asak/" ^ pkg_name ^ "." ^ module_name) in
-    to_channel outchan read [];
-    close_out outchan;
-  with
-  | Not_found -> ()
+let export_lambda i ftyped =
+  let pkg_name =
+    let bkindex = String.rindex i.source_file '/' + 1 in
+    String.(sub i.source_file bkindex (length i.source_file - bkindex)) in
+  let read = read_structure i.module_name ftyped in
+  let outchan = open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ i.module_name) in
+  to_channel outchan read [];
+  close_out outchan
 
 let clambda i typed =
   Clflags.use_inlining_arguments_set Clflags.classic_arguments;
-  export_lambda i.module_name (fst typed);
+  export_lambda i (fst typed);
   typed
   |> Profile.(record transl)
     (Translmod.transl_store_implementation i.module_name)
