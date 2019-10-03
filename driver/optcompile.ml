@@ -212,16 +212,18 @@ let get_pkg_name pwd =
   let xs = String.split_on_char '/' pwd in
   get_after_build xs
 
-let export_lambda pwd module_name ftyped =
+let export_lambda pwd source_file module_name ftyped =
   let pkg_name = get_pkg_name pwd in
+  let source_file = String.map (fun x -> if x = '/' then '.' else x) source_file in
   let read = read_structure module_name ftyped in
-  let outchan = open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ module_name) in
+  let outchan =
+    open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ source_file) in
   to_channel outchan read [];
   close_out outchan
 
 let clambda i typed =
   Clflags.use_inlining_arguments_set Clflags.classic_arguments;
-  export_lambda (Sys.getenv "PWD") i.module_name (fst typed);
+  export_lambda (Sys.getenv "PWD") i.source_file i.module_name (fst typed);
   typed
   |> Profile.(record transl)
     (Translmod.transl_store_implementation i.module_name)
