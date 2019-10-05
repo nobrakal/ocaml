@@ -217,7 +217,7 @@ let export_lambda pwd source_file module_name ftyped =
   let source_file = String.map (fun x -> if x = '/' then '.' else x) source_file in
   let read = read_structure module_name ftyped in
   let outchan =
-    open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ source_file) in
+    open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ source_file ^ ":" ^ module_name) in
   to_channel outchan read [];
   close_out outchan
 
