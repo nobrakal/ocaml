@@ -223,7 +223,7 @@ let export_lambda pwd source_file module_name ftyped =
 
 let clambda i typed =
   Clflags.use_inlining_arguments_set Clflags.classic_arguments;
-  export_lambda (Sys.getenv "PWD") i.source_file i.module_name (fst typed);
+  export_lambda (Sys.getcwd ()) i.source_file i.module_name (fst typed);
   typed
   |> Profile.(record transl)
     (Translmod.transl_store_implementation i.module_name)
