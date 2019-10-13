@@ -213,13 +213,16 @@ let get_pkg_name pwd =
   get_after_build xs
 
 let export_lambda pwd source_file module_name ftyped =
-  let pkg_name = get_pkg_name pwd in
-  let source_file = String.map (fun x -> if x = '/' then '.' else x) source_file in
-  let read = read_structure module_name ftyped in
-  let outchan =
-    open_out_bin ("/tmp/asak/" ^ pkg_name ^ ":" ^ source_file ^ ":" ^ module_name) in
-  to_channel outchan read [];
-  close_out outchan
+  try
+    let prefix = Sys.getenv "ASAK_PREFIX" in
+    let pkg_name = get_pkg_name pwd in
+    let source_file = String.map (fun x -> if x = '/' then '.' else x) source_file in
+    let read = read_structure module_name ftyped in
+    let outchan =
+      open_out_bin (prefix ^ pkg_name ^ ":" ^ source_file ^ ":" ^ module_name) in
+    to_channel outchan read [];
+    close_out outchan
+  with | Not_found -> ()
 
 let clambda i typed =
   Clflags.use_inlining_arguments_set Clflags.classic_arguments;
